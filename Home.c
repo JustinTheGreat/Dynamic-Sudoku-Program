@@ -150,7 +150,7 @@ int main(void){
     int rows = 4;
     int columns = 4;
 
-    // This is an unsolved 4x4 sudoku puzzle
+    // This is a solvable 4x4 sudoku puzzle
     int sudoku[4][4] = {
         {2, 0, 0, 0},
         {0, 1, 0, 2},
