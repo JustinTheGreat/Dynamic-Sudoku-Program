@@ -88,18 +88,99 @@ void printBoard(int **Board, int rows, int columns){ //Prints the board (O(n^2))
   }
 }
 
-int main(void)
-{
-  int **Board;
-  int m = 6;
-  int n = 6;
-  Board = createBoard(m,n,2);
-  printBoard(Board,m,n);
-  printf("Input the amount of rows: ");
-  scanf("%d", &m);
-  printf("Input the amount of columns: ");
-  scanf("%d", &n);
-  return 0;
+bool isValid(int **board, int rows, int columns, int row, int column, int num) { //O(n)
+    // Check the number in the current row and column
+    for (int x = 0; x < rows; x++)
+        if (board[row][x] == num)
+            return false;
+    for (int x = 0; x < columns; x++)
+        if (board[x][column] == num)
+            return false;
+    
+    // Check the number in the current grid
+    int startRow = row - row % (int)sqrt(rows);
+    int startColumn = column - column % (int)sqrt(columns);
+    for (int i = 0; i < sqrt(rows); i++)
+        for (int j = 0; j < sqrt(columns); j++)
+            if (board[i + startRow][j + startColumn] == num)
+                return false;
+    
+    return true;
 }
 
+bool solveSudoku(int **board, int rows, int columns) { //O(n^n)
+    int row = -1;
+    int column = -1;
+    bool isEmpty = true;
+
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < columns; j++) {
+            if (board[i][j] == 0) {
+                row = i;
+                column = j;
+
+                // We still have some remaining cells in the Sudoku
+                isEmpty = false;
+                break;
+            }
+        }
+        if (!isEmpty)
+            break;
+    }
+
+    // No empty space left
+    if (isEmpty)
+        return true;
+    
+    // Else for each-row backtrack
+    for (int num = 1; num <= rows; num++) {
+        if (isValid(board, rows, columns, row, column, num)) {
+            board[row][column] = num;
+            if (solveSudoku(board, rows, columns))
+                return true;
+            else
+                board[row][column] = 0;  // replace it
+        }
+    }
+    return false;
+}
+
+
+int main(void){
+    int rows = 4;
+    int columns = 4;
+
+    // This is a solvable 4x4 sudoku puzzle
+    int sudoku[4][4] = {
+        {2, 0, 0, 0},
+        {0, 1, 0, 2},
+        {0, 0, 3, 0},
+        {0, 0, 0, 4}
+    };
+
+    // Create the sudoku board
+    int **board = createBoard(rows, columns, 0);
+
+    // Fill the board with the unsolved sudoku values
+    for (int i = 0; i < rows; i++){
+        for (int j = 0; j < columns; j++){
+            board[i][j] = sudoku[i][j];
+        }
+    }
+
+    // Solve the sudoku and print the result
+    if (solveSudoku(board, rows, columns)){
+        printBoard(board, rows, columns);
+    } else {
+        printf("No solution exists for the provided Sudoku puzzle.\n");
+    }
+
+    // Don't forget to free the memory allocated for the board
+    for (int i = 0; i < rows; i++){
+        free(board[i]);
+    }
+    free(board);
+    
+    return 0;
+}
 
